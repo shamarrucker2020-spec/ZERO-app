@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZERO">
+<meta name="theme-color" content="#020810">
+<link rel="manifest" href="manifest.json">
+<title>ZERO</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--r:#ff3a5c;--b:#3a8fff;--p:#9b5cff;--g:#3aff8a;--bg:#020810;--bdr:#0d1f30;--tx:#8ab8d0;--br:#e0f4ff;--dm:#2a4a62}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinr{to{transform:rotate(-360deg)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-6px);opacity:1}}
+@keyframes bp{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes scan{0%{top:-2px}100%{top:100%}}
+@keyframes glr{0%,100%{text-shadow:0 0 8px rgba(255,58,92,.4)}50%{text-shadow:0 0 22px rgba(255,58,92,.9)}}
+@keyframes glp{0%,100%{text-shadow:0 0 8px rgba(155,92,255,.4)}50%{text-shadow:0 0 22px rgba(155,92,255,.9)}}
+html,body{height:100%;background:#020810;overflow:hidden}
+#root{height:100%}
+.app{height:100%;display:flex;flex-direction:column;background:#020810;position:relative;overflow:hidden;font-family:"Share Tech Mono",monospace;color:var(--tx)}
+.sl{position:absolute;left:0;right:0;height:2px;z-index:1;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(0,200,240,.07),transparent);animation:scan 12s linear infinite}
+/* SETUP */
+.setup{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;position:relative;z-index:5;overflow-y:auto}
+.sr{width:52px;height:52px;position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.stitle{font-family:"Orbitron",sans-serif;font-weight:900;font-size:20px;letter-spacing:6px;color:var(--r);animation:glr 3s ease-in-out infinite}
+.ssub{font-size:10px;color:var(--dm);max-width:300px;line-height:1.9}
+.scard{background:rgba(58,143,255,.04);border:1px solid rgba(58,143,255,.2);border-radius:4px;padding:16px;max-width:380px;width:100%;text-align:left}
+.slbl{font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:2px;color:rgba(58,143,255,.7);margin-bottom:7px;display:block}
+.sinp{width:100%;background:rgba(0,8,18,.9);border:1px solid rgba(58,143,255,.3);color:var(--br);padding:9px 12px;font-family:"Share Tech Mono",monospace;font-size:13px;outline:none;border-radius:2px;margin-bottom:8px}
+.sinp:focus{border-color:rgba(58,143,255,.7);outline:none}
+.sinp::placeholder{color:var(--dm)}
+.sgo{width:100%;background:rgba(255,58,92,.1);border:1px solid rgba(255,58,92,.5);color:var(--r);padding:10px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:9px;letter-spacing:2px;border-radius:2px}
+.snote{font-size:9px;color:var(--dm);line-height:1.7;margin-top:9px}
+.snote a{color:var(--b)}
+.ssteps{text-align:left;max-width:380px;width:100%}
+.srow{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.snum{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",sans-serif;font-size:8px;font-weight:700;flex-shrink:0;margin-top:2px}
+.snr{background:rgba(255,58,92,.15);border:1px solid rgba(255,58,92,.4);color:var(--r)}
+.snb{background:rgba(58,143,255,.15);border:1px solid rgba(58,143,255,.4);color:var(--b)}
+.snp{background:rgba(155,92,255,.15);border:1px solid rgba(155,92,255,.4);color:var(--p)}
+.stxt{font-size:10px;color:var(--tx);line-height:1.75}
+.stxt strong{color:var(--br)}
+.stxt a{color:var(--b)}
+.stxt code{background:rgba(58,143,255,.15);padding:1px 5px;font-size:10px;color:var(--b);border-radius:2px}
+/* HEADER RED */
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:9px 12px;border-bottom:1px solid rgba(255,58,92,.2);background:rgba(255,58,92,.03);position:relative;z-index:10;flex-shrink:0}
+.lw{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.reactor{width:30px;height:30px;position:relative;display:flex;align-items:center;justify-content:center}
+.ring{position:absolute;border-radius:50%;border:1.5px solid}
+.r1{width:30px;height:30px;border-color:rgba(255,58,92,.2);animation:spin 14s linear infinite}
+.r2{width:21px;height:21px;border-color:rgba(255,58,92,.45);animation:spinr 9s linear infinite}
+.r3{width:13px;height:13px;border-color:rgba(255,58,92,.7);animation:spin 5s linear infinite}
+.core{width:5px;height:5px;background:var(--r);border-radius:50%;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 6px var(--r)}
+.lt{font-family:"Orbitron",sans-serif;font-weight:900;font-size:16px;letter-spacing:4px;color:var(--r);animation:glr 3s ease-in-out infinite}
+.ls{font-family:"Orbitron",sans-serif;font-size:6px;letter-spacing:1px;color:rgba(255,58,92,.3)}
+.sbadge{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid;border-radius:2px;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1.5px;white-space:nowrap}
+.dot{width:4px;height:4px;border-radius:50%}
+.sR{border-color:rgba(255,58,92,.22);color:var(--r)}.sR .dot{background:var(--r)}
+.sL{border-color:rgba(58,255,138,.3);color:var(--g)}.sL .dot{background:var(--g);animation:pulse .8s ease-in-out infinite}
+.sP{border-color:rgba(58,143,255,.3);color:var(--b)}.sP .dot{background:var(--b);animation:pulse .7s ease-in-out infinite}
+.sS{border-color:rgba(155,92,255,.3);color:var(--p)}.sS .dot{background:var(--p);animation:pulse .9s ease-in-out infinite}
+.bars{display:flex;align-items:center;gap:2px;height:11px}
+.bar{width:2px;background:var(--p);border-radius:1px;transform-origin:bottom;animation:bp .6s ease-in-out infinite}
+.bar:nth-child(1){height:5px;animation-delay:0s}.bar:nth-child(2){height:10px;animation-delay:.1s}.bar:nth-child(3){height:7px;animation-delay:.2s}.bar:nth-child(4){height:11px;animation-delay:.15s}.bar:nth-child(5){height:4px;animation-delay:.05s}
+.ctrls{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn{background:transparent;border:1px solid var(--bdr);color:var(--dm);padding:4px 7px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1px;border-radius:2px;white-space:nowrap}
+.btn.on{border-color:var(--r);color:var(--r);background:rgba(255,58,92,.06)}
+.btn.elon{border-color:rgba(58,143,255,.4);color:var(--b);background:rgba(58,143,255,.06)}
+.btn.stop{border-color:rgba(255,58,92,.4);color:var(--r)}
+.vb{background:rgba(155,92,255,.05);border-bottom:1px solid rgba(155,92,255,.2);padding:6px 12px;display:flex;align-items:center;gap:7px;flex-shrink:0;font-size:9px;color:rgba(155,92,255,.9);z-index:9}
+.vlink{color:var(--b);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:"Share Tech Mono",monospace;font-size:9px;padding:0}
+.elp{background:rgba(58,143,255,.04);border-bottom:1px solid rgba(58,143,255,.2);padding:8px 12px;flex-shrink:0;z-index:9}
+.elrow{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.ellbl{font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1.5px;color:rgba(58,143,255,.6);white-space:nowrap}
+.elinp{flex:1;min-width:140px;background:rgba(0,8,18,.9);border:1px solid rgba(58,143,255,.25);color:var(--br);padding:6px 10px;font-family:"Share Tech Mono",monospace;font-size:12px;outline:none;border-radius:2px}
+.elinp:focus{border-color:rgba(58,143,255,.6);outline:none}
+.elinp::placeholder{color:var(--dm)}
+.elsave{background:rgba(58,143,255,.1);border:1px solid rgba(58,143,255,.4);color:var(--b);padding:6px 10px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1px;border-radius:2px;white-space:nowrap}
+.elnote{font-size:9px;color:var(--dm);margin-top:5px;line-height:1.6}
+.elnote a{color:var(--b)}
+.elok{font-size:9px;color:var(--g);margin-top:4px}
+.layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:2}
+/* MEMORY PURPLE */
+.mem{width:180px;border-right:1px solid rgba(155,92,255,.2);background:rgba(155,92,255,.03);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.phdr{padding:8px 10px;border-bottom:1px solid rgba(155,92,255,.18);font-family:"Orbitron",sans-serif;font-size:8px;letter-spacing:2px;color:var(--p);display:flex;justify-content:space-between;align-items:center;animation:glp 4s ease-in-out infinite}
+.pbody{flex:1;overflow-y:auto;padding:7px}
+.pbody::-webkit-scrollbar{width:2px}
+.pbody::-webkit-scrollbar-thumb{background:rgba(155,92,255,.4)}
+.fact{padding:6px 8px;margin-bottom:5px;border:1px solid rgba(155,92,255,.14);border-left:2px solid rgba(155,92,255,.5);background:rgba(155,92,255,.03)}
+.fk{font-size:7px;letter-spacing:1px;color:rgba(155,92,255,.6);text-transform:uppercase;margin-bottom:2px}
+.fv{font-size:11px;color:var(--br)}
+.nomem{font-size:10px;color:var(--dm);text-align:center;padding:16px 6px;line-height:1.9}
+.mfoot{margin-top:10px;padding-top:9px;border-top:1px solid rgba(155,92,255,.14)}
+/* CHAT */
+.chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:rgba(58,143,255,.3);border-radius:1px}
+.msg{display:flex;gap:7px}
+.mj{align-self:flex-start;max-width:90%}
+.mu{align-self:flex-end;flex-direction:row-reverse;max-width:90%}
+.av{width:26px;height:26px;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",sans-serif;font-size:6px;font-weight:700}
+.avj{background:rgba(58,143,255,.08);border:1px solid rgba(58,143,255,.28);color:var(--b)}
+.avu{background:rgba(58,255,138,.07);border:1px solid rgba(58,255,138,.26);color:var(--g)}
+.bub{padding:9px 12px;border-radius:2px;font-size:13px;line-height:1.68}
+.bj{background:rgba(58,143,255,.05);border:1px solid rgba(58,143,255,.13);border-left:2px solid var(--b);color:var(--tx)}
+.bu{background:rgba(58,255,138,.04);border:1px solid rgba(58,255,138,.11);border-right:2px solid var(--g);color:var(--tx)}
+.mt{font-size:8px;color:var(--dm);margin-top:2px}
+.thinking{display:flex;align-items:center;gap:7px}
+.td{width:5px;height:5px;background:var(--b);border-radius:50%}
+.td:nth-child(1){animation:bounce 1.2s ease-in-out infinite}
+.td:nth-child(2){animation:bounce 1.2s ease-in-out .2s infinite}
+.td:nth-child(3){animation:bounce 1.2s ease-in-out .4s infinite}
+.ttx{font-family:"Orbitron",sans-serif;font-size:8px;letter-spacing:2px;color:var(--b);animation:pulse 1.5s ease-in-out infinite}
+/* WELCOME */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
+.wr{width:58px;height:58px;position:relative;display:flex;align-items:center;justify-content:center}
+.wr .r1{width:58px;height:58px}.wr .r2{width:42px;height:42px}.wr .r3{width:26px;height:26px}
+.wcore{width:10px;height:10px;background:var(--g);border-radius:50%;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 10px var(--g)}
+.wtitle{font-family:"Orbitron",sans-serif;font-weight:900;font-size:22px;letter-spacing:6px}
+.wsub{font-size:10px;color:var(--dm);max-width:280px;line-height:1.9}
+.chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:360px}
+.chip{background:transparent;border:1px solid;padding:6px 10px;font-size:9px;font-family:"Share Tech Mono",monospace;cursor:pointer;border-radius:2px}
+/* INPUT GREEN */
+.iarea{padding:9px 12px;border-top:1px solid rgba(58,255,138,.16);background:rgba(58,255,138,.025);display:flex;gap:6px;align-items:flex-end}
+.inp{flex:1;background:rgba(0,8,18,.88);border:1px solid rgba(58,255,138,.16);color:var(--br);padding:9px 11px;font-family:"Share Tech Mono",monospace;font-size:13px;outline:none;resize:none;min-height:42px;max-height:90px;border-radius:2px;-webkit-appearance:none}
+.inp:focus{border-color:rgba(58,255,138,.48);outline:none}
+.inp::placeholder{color:var(--dm)}
+.inp:disabled{opacity:.4}
+.abtn{width:42px;height:42px;border-radius:2px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;border:none}
+.sbtn{background:rgba(58,255,138,.08);border:1px solid rgba(58,255,138,.36)!important;color:var(--g)}
+.sbtn:disabled{opacity:.25;cursor:not-allowed}
+.mbtn{background:transparent;border:1px solid var(--bdr)!important;color:var(--dm)}
+.mbtn.active{border-color:rgba(255,58,92,.6)!important;color:var(--r);background:rgba(255,58,92,.07);animation:pulse 1s ease-in-out infinite}
+strong{color:var(--br);font-weight:600}
+em{font-style:italic}
+code{background:rgba(58,143,255,.12);padding:1px 4px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+var R=React,RD=ReactDOM;
+var h=R.createElement;
+var RED="#ff3a5c",BLUE="#3a8fff",PURPLE="#9b5cff",GREEN="#3aff8a";
+var NC=[RED,BLUE,PURPLE,GREEN];
+
+// ── NEURON CANVAS ────────────────────────────────────────────────
+function NeuronCanvas(){
+  var cv=R.useRef(null);
+  var S=R.useRef({n:[],p:[],raf:null,lf:0});
+  R.useEffect(function(){
+    var c=cv.current; if(!c)return;
+    var ctx=c.getContext("2d"),st=S.current;
+    function resize(){c.width=c.offsetWidth;c.height=c.offsetHeight;build();}
+    function build(){
+      var W=c.width,H=c.height,cnt=Math.min(Math.floor(W*H/14000),65);
+      st.n=[];
+      for(var i=0;i<cnt;i++){
+        st.n.push({x:Math.random()*W,y:Math.random()*H,r:1.5+Math.random()*1.5,col:NC[Math.floor(Math.random()*4)],g:0,cn:[]});
+      }
+      var D=Math.min(W,H)*.22;
+      st.n.forEach(function(n){
+        var near=[];
+        st.n.forEach(function(m){
+          if(m===n)return;
+          var d=Math.hypot(m.x-n.x,m.y-n.y);
+          if(d<D)near.push({m:m,d:d});
+        });
+        near.sort(function(a,b){return a.d-b.d;});
+        n.cn=near.slice(0,4).map(function(x){return x.m;});
+      });
+      st.p=[];
+    }
+    function fire(n,depth){
+      if(n.g>0||(depth||0)>2)return;
+      n.g=28;
+      if(st.p.length<40){
+        n.cn.forEach(function(t){
+          st.p.push({fx:n.x,fy:n.y,tx:t.x,ty:t.y,tgt:t,col:n.col,p:0,sp:.009+Math.random()*.013,d:(depth||0)});
+        });
+      }
+    }
+    function draw(now){
+      var W=c.width,H=c.height;
+      ctx.clearRect(0,0,W,H);
+      st.n.forEach(function(n){
+        n.cn.forEach(function(m){
+          ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);
+          ctx.strokeStyle=n.col+"12";ctx.lineWidth=.6;ctx.stroke();
+        });
+      });
+      var keep=[];
+      st.p.forEach(function(p){
+        p.p+=p.sp;
+        if(p.p>=1){fire(p.tgt,p.d+1);return;}
+        var x=p.fx+(p.tx-p.fx)*p.p,y=p.fy+(p.ty-p.fy)*p.p;
+        var p2=Math.max(0,p.p-.15);
+        ctx.beginPath();ctx.moveTo(p.fx+(p.tx-p.fx)*p2,p.fy+(p.ty-p.fy)*p2);ctx.lineTo(x,y);
+        ctx.strokeStyle=p.col+"80";ctx.lineWidth=1.2;ctx.stroke();
+        ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fillStyle=p.col;ctx.fill();
+        keep.push(p);
+      });
+      st.p=keep;
+      st.n.forEach(function(n){
+        if(n.g>0){
+          var a=Math.round((n.g/28)*66).toString(16).padStart(2,"0");
+          ctx.beginPath();ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2);ctx.fillStyle=n.col+a;ctx.fill();
+          n.g--;
+        }
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+        ctx.fillStyle=n.g>0?n.col:n.col+"4a";ctx.fill();
+      });
+      if(now-st.lf>460){st.lf=now;var ni=Math.floor(Math.random()*st.n.length);if(st.n[ni])fire(st.n[ni]);}
+      st.raf=requestAnimationFrame(draw);
+    }
+    resize();
+    window.addEventListener("resize",resize);
+    st.raf=requestAnimationFrame(draw);
+    return function(){cancelAnimationFrame(st.raf);window.removeEventListener("resize",resize);};
+  },[]);
+  return h("canvas",{ref:cv,style:{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}});
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function fmt(t){
+  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>")
+    .replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\n/g,"<br>");
+}
+function tf(ts){return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
+function lg(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function ls(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function detectSpeech(){
+  try{if(!window.speechSynthesis)return false;var u=new SpeechSynthesisUtterance(" ");u.volume=0;window.speechSynthesis.speak(u);window.speechSynthesis.cancel();return true;}
+  catch(e){return false;}
+}
+
+var SYS="You are Zero — a highly capable personal AI assistant. Precise, sharp, quietly confident. Lead with the answer. Use the user's name when known. Always honest.\n\nCAPABILITIES: Writing, research, planning, decisions, emails, brainstorming, technical help, strategy, creative work.\n\nKNOWN FACTS ABOUT USER:\n{FACTS}\n\nMEMORY EXTRACTION: If user reveals personal info (name, job, city, goals, projects, preferences), append at very end:\n<mem>{\"key\":\"value\"}</mem>\nOnly new facts. Omit if nothing new. Never mention this.";
+
+var SUGGESTED=["What can you help me with?","Help me write a professional email","Plan a project for me","Research something for me","Help me think through a decision","Write a summary or report"];
+var CHIP_COLORS=["rgba(255,58,92,.25)|rgba(255,58,92,.65)","rgba(58,143,255,.25)|rgba(58,143,255,.65)","rgba(155,92,255,.25)|rgba(155,92,255,.65)","rgba(58,255,138,.25)|rgba(58,255,138,.65)","rgba(255,58,92,.25)|rgba(255,58,92,.65)","rgba(58,143,255,.25)|rgba(58,143,255,.65)"];
+
+// ── SETUP SCREEN ─────────────────────────────────────────────────
+function Setup(props){
+  var st=R.useState(0),pg=st[0],setPg=st[1];
+  var kt=R.useState(""),key=kt[0],setKey=kt[1];
+  var rings=h("div",{className:"sr"},h("div",{className:"ring r1"}),h("div",{className:"ring r2"}),h("div",{className:"ring r3"}),h("div",{className:"core"}));
+  if(pg===0){
+    return h("div",{className:"app",style:{position:"relative"}},h(NeuronCanvas),
+      h("div",{className:"setup",style:{position:"relative",zIndex:5}},
+        rings,
+        h("div",{className:"stitle"},"ZERO"),
+        h("div",{className:"ssub"},"Your personal AI needs a free API key from Anthropic to activate its brain."),
+        h("div",{className:"ssteps"},
+          h("div",{className:"srow"},h("div",{className:"snum snr"},"1"),h("div",{className:"stxt"},h("span",null,"Go to "),h("a",{href:"https://console.anthropic.com",target:"_blank"},"console.anthropic.com"),h("span",null," and sign up for a free account"))),
+          h("div",{className:"srow"},h("div",{className:"snum snb"},"2"),h("div",{className:"stxt"},h("span",null,"Click "),h("strong",null,'"API Keys"'),h("span",null," in the left menu → "),h("strong",null,'"Create Key"'),h("span",null," → any name is fine"))),
+          h("div",{className:"srow"},h("div",{className:"snum snp"},"3"),h("div",{className:"stxt"},h("span",null,"Copy the key — it starts with "),h("code",null,"sk-ant-"),h("span",null," — you only see it once")))
+        ),
+        h("button",{className:"sgo",onClick:function(){setPg(1);}},"I HAVE MY KEY →")
+      )
+    );
+  }
+  return h("div",{className:"app",style:{position:"relative"}},h(NeuronCanvas),
+    h("div",{className:"setup",style:{position:"relative",zIndex:5}},
+      rings,
+      h("div",{className:"stitle"},"ZERO"),
+      h("div",{className:"scard"},
+        h("label",{className:"slbl"},"PASTE YOUR ANTHROPIC API KEY"),
+        h("input",{className:"sinp",type:"password",placeholder:"sk-ant-api03-...",value:key,onChange:function(e){setKey(e.target.value);},onKeyDown:function(e){if(e.key==="Enter"&&key.trim())props.onDone(key.trim());}}),
+        h("button",{className:"sgo",onClick:function(){if(key.trim())props.onDone(key.trim());},disabled:!key.trim()},"ACTIVATE ZERO"),
+        h("div",{className:"snote"},"Stored on this device only. Add billing at ",h("a",{href:"https://console.anthropic.com",target:"_blank"},"console.anthropic.com")," if needed (a few dollars lasts months).")
+      )
+    )
+  );
+}
+
+// ── MAIN APP ─────────────────────────────────────────────────────
+function App(){
+  var ak=R.useState(function(){return localStorage.getItem("z-akey")||"";});
+  var akey=ak[0],setAkey=ak[1];
+  var ms=R.useState(function(){return lg("z-msgs",[]);});
+  var msgs=ms[0],setMsgs=ms[1];
+  var is=R.useState(""); var inp=is[0],setInp=is[1];
+  var tk=R.useState(false); var think=tk[0],setThink=tk[1];
+  var lk=R.useState(false); var listen=lk[0],setListen=lk[1];
+  var sk=R.useState("READY"); var status=sk[0],setStatus=sk[1];
+  var fk=R.useState(function(){return lg("z-facts",{});});
+  var facts=fk[0],setFacts=fk[1];
+  var mk=R.useState(false); var showMem=mk[0],setShowMem=mk[1];
+  var vk=R.useState(true); var vOn=vk[0],setVOn=vk[1];
+  var nk=R.useState(true); var native=nk[0],setNative=nk[1];
+  var ek=R.useState(function(){return localStorage.getItem("z-elkey")||"";});
+  var elKey=ek[0],setElKey=ek[1];
+  var ei=R.useState(function(){return localStorage.getItem("z-elkey")||"";});
+  var elInp=ei[0],setElInp=ei[1];
+  var se=R.useState(false); var showEl=se[0],setShowEl=se[1];
+  var eo=R.useState(function(){return !!localStorage.getItem("z-elkey");});
+  var elOk=eo[0],setElOk=eo[1];
+  var sp=R.useState(false); var spk=sp[0],setSpk=sp[1];
+  var endRef=R.useRef(null),recRef=R.useRef(null),taRef=R.useRef(null),audRef=R.useRef(null);
+
+  R.useEffect(function(){setNative(detectSpeech());},[]);
+  R.useEffect(function(){if(endRef.current)endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,think]);
+  R.useEffect(function(){
+    if(taRef.current){taRef.current.style.height="auto";taRef.current.style.height=Math.min(taRef.current.scrollHeight,90)+"px";}
+  },[inp]);
+
+  function persist(m,f){ls("z-msgs",m.slice(-40));ls("z-facts",f);}
+  function stopSpk(){
+    if(audRef.current){audRef.current.pause();audRef.current=null;}
+    if(window.speechSynthesis)window.speechSynthesis.cancel();
+    setSpk(false);setStatus("READY");
+  }
+  function onDone(k){localStorage.setItem("z-akey",k);setAkey(k);}
+
+  function saveEl(){
+    var k=elInp.trim();if(!k)return;
+    localStorage.setItem("z-elkey",k);setElKey(k);setElOk(true);setVOn(true);setShowEl(false);
+  }
+  function rmEl(){localStorage.removeItem("z-elkey");setElKey("");setElInp("");setElOk(false);}
+
+  async function speakEL(txt){
+    var t=txt.replace(/<[^>]+>/g,"").replace(/[*_`#]/g,"").replace(/\n+/g," ").slice(0,700);
+    try{
+      setStatus("SPEAKING");setSpk(true);
+      var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB/stream",{
+        method:"POST",headers:{"Content-Type":"application/json","xi-api-key":elKey},
+        body:JSON.stringify({text:t,model_id:"eleven_turbo_v2_5",voice_settings:{stability:.5,similarity_boost:.75}})
+      });
+      if(!r.ok){setSpk(false);setStatus("READY");return;}
+      var blob=await r.blob(),url=URL.createObjectURL(blob),audio=new Audio(url);
+      audRef.current=audio;
+      audio.onended=function(){setSpk(false);setStatus("READY");URL.revokeObjectURL(url);};
+      audio.onerror=function(){setSpk(false);setStatus("READY");};
+      await audio.play();
+    }catch(e){setSpk(false);setStatus("READY");}
+  }
+
+  function speakNative(txt){
+    var t=txt.replace(/<[^>]+>/g,"").replace(/[*_`#]/g,"").replace(/\n+/g," ").slice(0,600);
+    var u=new SpeechSynthesisUtterance(t);u.rate=.88;u.pitch=.84;u.volume=1;
+    function av(){
+      var vs=window.speechSynthesis.getVoices();
+      var p=vs.find(function(v){return v.name==="Daniel"||v.name.includes("Arthur")||(v.lang==="en-GB"&&!v.name.toLowerCase().includes("female"));})||
+        vs.find(function(v){return v.lang.startsWith("en")&&!v.name.toLowerCase().includes("female");})||vs[0];
+      if(p)u.voice=p;
+    }
+    if(window.speechSynthesis.getVoices().length)av();
+    else window.speechSynthesis.onvoiceschanged=av;
+    u.onstart=function(){setStatus("SPEAKING");setSpk(true);};
+    u.onend=u.onerror=function(){setStatus("READY");setSpk(false);};
+    window.speechSynthesis.speak(u);
+  }
+
+  function speak(txt){if(!vOn)return;if(elKey){speakEL(txt);return;}if(native)speakNative(txt);}
+
+  async function send(text){
+    if(!text||!text.trim()||think)return;
+    stopSpk();
+    var um={role:"user",content:text.trim(),ts:Date.now()};
+    var thread=msgs.concat([um]);
+    setMsgs(thread);setInp("");setThink(true);setStatus("PROCESSING");
+    var fs=Object.keys(facts).length?Object.entries(facts).map(function(e){return "  - "+e[0]+": "+e[1];}).join("\n"):"  None yet.";
+    var sys=SYS.replace("{FACTS}",fs);
+    var am=thread.slice(-20).map(function(m){return {role:m.role,content:m.content};});
+    try{
+      var r=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","x-api-key":akey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys,messages:am})
+      });
+      if(!r.ok)throw new Error(r.status);
+      var data=await r.json();
+      var raw=data.content&&data.content[0]?data.content[0].text:"I lost my connection. Please try again.";
+      var mm=raw.match(/<mem>([\s\S]*?)<\/mem>/);
+      var clean=raw.replace(/<mem>[\s\S]*?<\/mem>/g,"").trim();
+      var nf=Object.assign({},facts);
+      if(mm){try{var ex=JSON.parse(mm[1]);Object.assign(nf,ex);setFacts(nf);}catch(e){}}
+      var am2={role:"assistant",content:clean,ts:Date.now()};
+      var fin=thread.concat([am2]);
+      setMsgs(fin);persist(fin,nf);
+      if(vOn)speak(clean);
+    }catch(e){
+      setMsgs(function(m){return m.concat([{role:"assistant",content:"Connection issue. Check your API key and internet, then try again.",ts:Date.now()}]);});
+    }
+    setThink(false);
+    if(!vOn||(!elKey&&!native))setStatus("READY");
+  }
+
+  function toggleListen(){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert("Voice input works in Chrome or Edge browsers.");return;}
+    if(listen){if(recRef.current)recRef.current.stop();return;}
+    stopSpk();
+    var rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang="en-US";
+    rec.onstart=function(){setListen(true);setStatus("LISTENING");};
+    rec.onresult=function(e){
+      var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join("");
+      setInp(t);
+      if(e.results[e.results.length-1].isFinal){setListen(false);send(t);}
+    };
+    rec.onend=function(){setListen(false);setStatus(function(s){return s==="LISTENING"?"READY":s;});};
+    rec.onerror=function(){setListen(false);setStatus("READY");};
+    recRef.current=rec;rec.start();
+  }
+
+  function clearAll(){
+    if(!confirm("Clear all conversation history and memory?"))return;
+    ["z-msgs","z-facts"].forEach(function(k){localStorage.removeItem(k);});
+    setMsgs([]);setFacts({});
+  }
+
+  if(!akey)return h(Setup,{onDone:onDone});
+
+  var canSpk=native||!!elKey;
+  var fkeys=Object.keys(facts);
+  var sc=status==="READY"?"sR":status==="LISTENING"?"sL":status==="PROCESSING"?"sP":"sS";
+
+  return h("div",{className:"app"},
+    h(NeuronCanvas),
+    h("div",{className:"sl"}),
+
+    // HEADER
+    h("div",{className:"hdr",style:{position:"relative",zIndex:10}},
+      h("div",{className:"lw"},
+        h("div",{className:"reactor"},h("div",{className:"ring r1"}),h("div",{className:"ring r2"}),h("div",{className:"ring r3"}),h("div",{className:"core"})),
+        h("div",null,h("div",{className:"lt"},"ZERO"),h("div",{className:"ls"},"PERSONAL AI"))
+      ),
+      h("div",{className:"sbadge "+sc},
+        h("div",{className:"dot"}),
+        status==="SPEAKING"?h("div",{className:"bars"},h("div",{className:"bar"}),h("div",{className:"bar"}),h("div",{className:"bar"}),h("div",{className:"bar"}),h("div",{className:"bar"})):null,
+        h("span",null,status)
+      ),
+      h("div",{className:"ctrls"},
+        spk?h("button",{className:"btn stop",onClick:stopSpk},"⏹ STOP"):
+          h("button",{className:"btn"+(vOn&&canSpk?" on":""),onClick:function(){if(canSpk){setVOn(function(v){return !v;});stopSpk();}else setShowEl(function(s){return !s;});}},
+            !canSpk?"⚠ VOICE":vOn?(elKey?"🔊 11LABS":"🔊 VOICE"):"🔇 MUTED"),
+        h("button",{className:"btn"+(showEl?" elon":""),onClick:function(){setShowEl(function(s){return !s;});}},elOk?"🎙 ✓":"🎙"),
+        h("button",{className:"btn"+(showMem?" on":""),onClick:function(){setShowMem(function(s){return !s;});}},
+          "🧠"+(fkeys.length>0?" ("+fkeys.length+")":"")),
+        h("button",{className:"btn",onClick:clearAll},"⊗")
+      )
+    ),
+
+    !native&&!elKey?h("div",{className:"vb"},
+      h("span",null,"🔇 "),
+      h("span",null,"Add "),h("button",{className:"vlink",onClick:function(){setShowEl(true);}},"ElevenLabs key"),h("span",null," for voice output.")
+    ):null,
+
+    showEl?h("div",{className:"elp"},
+      h("div",{className:"elrow"},
+        h("span",{className:"ellbl"},"ELEVENLABS KEY"),
+        h("input",{className:"elinp",type:"password",placeholder:"Paste key…",value:elInp,onChange:function(e){setElInp(e.target.value);},onKeyDown:function(e){if(e.key==="Enter")saveEl();}}),
+        h("button",{className:"elsave",onClick:saveEl},"SAVE"),
+        elKey?h("button",{className:"btn stop",onClick:rmEl},"REMOVE"):null
+      ),
+      elOk?h("div",{className:"elok"},"✓ ElevenLabs active"):null,
+      h("div",{className:"elnote"},"Free key at ",h("a",{href:"https://elevenlabs.io",target:"_blank"},"elevenlabs.io")," — stored locally only.")
+    ):null,
+
+    // LAYOUT
+    h("div",{className:"layout"},
+      showMem?h("div",{className:"mem"},
+        h("div",{className:"phdr"},h("span",null,"MEMORY"),h("span",{style:{color:"rgba(155,92,255,.4)",fontSize:"7px"}},fkeys.length+" FACTS")),
+        h("div",{className:"pbody"},
+          fkeys.length===0?h("div",{className:"nomem"},"Zero learns about you as you talk."):
+          fkeys.map(function(k){return h("div",{className:"fact",key:k},h("div",{className:"fk"},k.replace(/_/g," ")),h("div",{className:"fv"},String(facts[k])));})
+        )
+      ):null,
+
+      h("div",{className:"chat"},
+        h("div",{className:"msgs"},
+          msgs.length===0?h("div",{className:"welcome"},
+            h("div",{className:"wr"},h("div",{className:"ring r1"}),h("div",{className:"ring r2"}),h("div",{className:"ring r3"}),h("div",{className:"wcore"})),
+            h("div",{className:"wtitle"},
+              h("span",{style:{color:RED}},"Z"),h("span",{style:{color:BLUE}}," · E"),
+              h("span",{style:{color:PURPLE}}," · R"),h("span",{style:{color:GREEN}}," · O")
+            ),
+            h("div",{className:"wsub"},"Online and at your service."),
+            h("div",{className:"chips"},SUGGESTED.map(function(p,i){
+              var cc=CHIP_COLORS[i].split("|");
+              return h("button",{key:p,className:"chip",style:{borderColor:cc[0],color:cc[1]},onClick:function(){send(p);}},p);
+            }))
+          ):null,
+          msgs.map(function(m,i){
+            var isU=m.role==="user";
+            return h("div",{key:i,className:"msg "+(isU?"mu":"mj"),style:{animationDelay:".05s"}},
+              h("div",{className:"av "+(isU?"avu":"avj")},isU?"YOU":"ZRO"),
+              h("div",null,
+                h("div",{className:"bub "+(isU?"bu":"bj"),dangerouslySetInnerHTML:{__html:fmt(m.content)}}),
+                h("div",{className:"mt"},tf(m.ts))
+              )
+            );
+          }),
+          think?h("div",{className:"msg mj"},
+            h("div",{className:"av avj"},"ZRO"),
+            h("div",null,h("div",{className:"bub bj"},h("div",{className:"thinking"},h("div",{className:"td"}),h("div",{className:"td"}),h("div",{className:"td"}),h("span",{className:"ttx"},"PROCESSING"))))
+          ):null,
+          h("div",{ref:endRef})
+        ),
+
+        // INPUT
+        h("div",{className:"iarea"},
+          h("button",{className:"abtn mbtn"+(listen?" active":""),onClick:toggleListen},listen?"●":"🎤"),
+          h("textarea",{ref:taRef,className:"inp",value:inp,
+            onChange:function(e){setInp(e.target.value);},
+            onKeyDown:function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(inp);}},
+            placeholder:listen?"Listening…":"Message Zero…",
+            disabled:think||listen,rows:1}),
+          h("button",{className:"abtn sbtn",onClick:function(){send(inp);},disabled:!inp.trim()||think},"➤")
+        )
+      )
+    )
+  );
+}
+
+RD.createRoot(document.getElementById("root")).render(h(App,null));
+</script>
+</body>
+</html>
