@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZERO">
+<meta name="theme-color" content="#020810">
+<link rel="manifest" href="manifest.json">
+<title>ZERO — Personal AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#ff3a5c;--blue:#3a8fff;--purple:#9b5cff;--green:#3aff8a;--bg:#020810;--border:#0d1f30;--text:#8ab8d0;--bright:#e0f4ff;--dim:#2a4a62}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-r{to{transform:rotate(-360deg)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}
+@keyframes barpulse{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes scan{0%{top:-2px}100%{top:100%}}
+@keyframes glow-r{0%,100%{text-shadow:0 0 8px rgba(255,58,92,.4)}50%{text-shadow:0 0 22px rgba(255,58,92,.9)}}
+@keyframes glow-p{0%,100%{text-shadow:0 0 8px rgba(155,92,255,.4)}50%{text-shadow:0 0 22px rgba(155,92,255,.9)}}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+#root{height:100%;display:flex;flex-direction:column}
+.app{height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden;font-family:"Share Tech Mono",monospace;color:var(--text)}
+.scanline{position:absolute;left:0;right:0;height:2px;z-index:1;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(0,200,240,.07),transparent);animation:scan 12s linear infinite}
+.setup{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center;position:relative;z-index:5;overflow-y:auto}
+.s-reactor{width:56px;height:56px;position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.s-title{font-family:"Orbitron",sans-serif;font-weight:900;font-size:20px;letter-spacing:6px;color:var(--red);animation:glow-r 3s ease-in-out infinite}
+.s-sub{font-size:10px;color:var(--dim);letter-spacing:.5px;max-width:320px;line-height:1.9}
+.s-card{background:rgba(58,143,255,.04);border:1px solid rgba(58,143,255,.2);border-radius:4px;padding:18px;max-width:400px;width:100%;text-align:left}
+.s-lbl{font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:2px;color:rgba(58,143,255,.7);margin-bottom:7px;display:block}
+.s-inp{width:100%;background:rgba(0,8,18,.9);border:1px solid rgba(58,143,255,.3);color:var(--bright);padding:9px 12px;font-family:"Share Tech Mono",monospace;font-size:13px;outline:none;border-radius:2px;margin-bottom:9px;transition:border-color .2s}
+.s-inp:focus{border-color:rgba(58,143,255,.7)}
+.s-inp::placeholder{color:var(--dim)}
+.s-go{width:100%;background:rgba(255,58,92,.1);border:1px solid rgba(255,58,92,.5);color:var(--red);padding:10px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:9px;letter-spacing:2px;border-radius:2px;transition:all .2s}
+.s-go:hover{background:rgba(255,58,92,.2)}
+.s-note{font-size:9px;color:var(--dim);line-height:1.7;margin-top:10px}
+.s-note a,.s-note .lnk{color:var(--blue)}
+.s-steps{text-align:left;max-width:400px;width:100%}
+.srow{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px}
+.snum{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",sans-serif;font-size:8px;font-weight:700;flex-shrink:0;margin-top:1px}
+.snum.r{background:rgba(255,58,92,.15);border:1px solid rgba(255,58,92,.4);color:var(--red)}
+.snum.b{background:rgba(58,143,255,.15);border:1px solid rgba(58,143,255,.4);color:var(--blue)}
+.snum.p{background:rgba(155,92,255,.15);border:1px solid rgba(155,92,255,.4);color:var(--purple)}
+.stxt{font-size:10px;color:var(--text);line-height:1.75}
+.stxt strong{color:var(--bright)}
+.stxt a{color:var(--blue)}
+.stxt code{background:rgba(58,143,255,.15);padding:1px 5px;font-family:"Share Tech Mono",monospace;font-size:10px;color:var(--blue);border-radius:2px}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:9px 13px;border-bottom:1px solid rgba(255,58,92,.2);background:rgba(255,58,92,.03);position:relative;z-index:10;flex-shrink:0}
+.logo-wrap{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.reactor{width:32px;height:32px;position:relative;display:flex;align-items:center;justify-content:center}
+.ring{position:absolute;border-radius:50%;border:1.5px solid}
+.r1{width:32px;height:32px;border-color:rgba(255,58,92,.2);animation:spin 14s linear infinite}
+.r2{width:23px;height:23px;border-color:rgba(255,58,92,.45);animation:spin-r 9s linear infinite}
+.r3{width:14px;height:14px;border-color:rgba(255,58,92,.7);animation:spin 5s linear infinite}
+.core{width:5px;height:5px;background:var(--red);border-radius:50%;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 7px var(--red)}
+.logo-text{font-family:"Orbitron",sans-serif;font-weight:900;font-size:16px;letter-spacing:4px;color:var(--red);animation:glow-r 3s ease-in-out infinite}
+.logo-sub{font-family:"Orbitron",sans-serif;font-size:6px;letter-spacing:1px;color:rgba(255,58,92,.3)}
+.sbadge{display:flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid;border-radius:2px;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:2px;white-space:nowrap}
+.sdot{width:4px;height:4px;border-radius:50%}
+.sREADY{border-color:rgba(255,58,92,.22);color:var(--red)}.sREADY .sdot{background:var(--red)}
+.sLISTENING{border-color:rgba(58,255,138,.3);color:var(--green)}.sLISTENING .sdot{background:var(--green);animation:pulse .8s ease-in-out infinite}
+.sPROCESSING{border-color:rgba(58,143,255,.3);color:var(--blue)}.sPROCESSING .sdot{background:var(--blue);animation:pulse .7s ease-in-out infinite}
+.sSPEAKING{border-color:rgba(155,92,255,.3);color:var(--purple)}.sSPEAKING .sdot{background:var(--purple);animation:pulse .9s ease-in-out infinite}
+.bars{display:flex;align-items:center;gap:2px;height:11px}
+.bar{width:2px;background:var(--purple);border-radius:1px;transform-origin:bottom;animation:barpulse .6s ease-in-out infinite}
+.bar:nth-child(1){height:5px;animation-delay:0s}.bar:nth-child(2){height:10px;animation-delay:.1s}.bar:nth-child(3){height:7px;animation-delay:.2s}.bar:nth-child(4){height:11px;animation-delay:.15s}.bar:nth-child(5){height:4px;animation-delay:.05s}
+.ctrls{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.btn{background:transparent;border:1px solid var(--border);color:var(--dim);padding:4px 8px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1px;border-radius:2px;transition:all .2s;white-space:nowrap}
+.btn:hover,.btn.on{border-color:var(--red);color:var(--red);background:rgba(255,58,92,.06)}
+.btn.stop{border-color:rgba(255,58,92,.4);color:var(--red)}
+.btn.elon{border-color:rgba(58,143,255,.4);color:var(--blue);background:rgba(58,143,255,.06)}
+.vbanner{background:rgba(155,92,255,.05);border-bottom:1px solid rgba(155,92,255,.2);padding:6px 13px;display:flex;align-items:center;gap:7px;flex-shrink:0;font-size:9px;color:rgba(155,92,255,.9);z-index:9}
+.vlink{color:var(--blue);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:"Share Tech Mono",monospace;font-size:9px;padding:0}
+.elpanel{background:rgba(58,143,255,.04);border-bottom:1px solid rgba(58,143,255,.2);padding:9px 13px;flex-shrink:0;z-index:9;animation:fadeup .2s ease}
+.elrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ellbl{font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1.5px;color:rgba(58,143,255,.6);white-space:nowrap}
+.elinp{flex:1;min-width:150px;background:rgba(0,8,18,.9);border:1px solid rgba(58,143,255,.25);color:var(--bright);padding:6px 10px;font-family:"Share Tech Mono",monospace;font-size:12px;outline:none;border-radius:2px;transition:border-color .2s}
+.elinp:focus{border-color:rgba(58,143,255,.6)}
+.elinp::placeholder{color:var(--dim)}
+.elsave{background:rgba(58,143,255,.1);border:1px solid rgba(58,143,255,.4);color:var(--blue);padding:6px 11px;cursor:pointer;font-family:"Orbitron",sans-serif;font-size:7px;letter-spacing:1px;border-radius:2px;white-space:nowrap;transition:all .2s}
+.elsave:hover{background:rgba(58,143,255,.2)}
+.elnote{font-size:9px;color:var(--dim);margin-top:5px;line-height:1.6}
+.elnote a{color:var(--blue)}
+.elok{font-size:9px;color:var(--green);margin-top:4px}
+.layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:2}
+.mem{width:190px;border-right:1px solid rgba(155,92,255,.2);background:rgba(155,92,255,.03);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.phdr{padding:8px 11px;border-bottom:1px solid rgba(155,92,255,.18);font-family:"Orbitron",sans-serif;font-size:8px;letter-spacing:2px;color:var(--purple);display:flex;justify-content:space-between;align-items:center;animation:glow-p 4s ease-in-out infinite}
+.pbody{flex:1;overflow-y:auto;padding:8px}
+.pbody::-webkit-scrollbar{width:2px}
+.pbody::-webkit-scrollbar-thumb{background:rgba(155,92,255,.4)}
+.fact{padding:6px 8px;margin-bottom:5px;animation:fadeup .3s ease;border:1px solid rgba(155,92,255,.14);border-left:2px solid rgba(155,92,255,.5);background:rgba(155,92,255,.03)}
+.fk{font-size:7px;letter-spacing:1px;color:rgba(155,92,255,.6);text-transform:uppercase;margin-bottom:2px}
+.fv{font-size:11px;color:var(--bright)}
+.nomem{font-size:10px;color:var(--dim);text-align:center;padding:18px 7px;line-height:1.9}
+.mfoot{margin-top:10px;padding-top:9px;border-top:1px solid rgba(155,92,255,.14)}
+.chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.msgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:11px}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:rgba(58,143,255,.3);border-radius:1px}
+.msg{display:flex;gap:7px;animation:fadeup .25s ease}
+.msg-j{align-self:flex-start;max-width:90%}
+.msg-u{align-self:flex-end;flex-direction:row-reverse;max-width:90%}
+.av{width:26px;height:26px;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",sans-serif;font-size:6px;font-weight:700}
+.av-j{background:rgba(58,143,255,.08);border:1px solid rgba(58,143,255,.28);color:var(--blue)}
+.av-u{background:rgba(58,255,138,.07);border:1px solid rgba(58,255,138,.26);color:var(--green)}
+.bub{padding:9px 12px;border-radius:2px;font-size:13px;line-height:1.68}
+.bub-j{background:rgba(58,143,255,.05);border:1px solid rgba(58,143,255,.13);border-left:2px solid var(--blue);color:var(--text)}
+.bub-u{background:rgba(58,255,138,.04);border:1px solid rgba(58,255,138,.11);border-right:2px solid var(--green);color:var(--text)}
+.mt{font-size:8px;color:var(--dim);margin-top:2px}
+.thinking{display:flex;align-items:center;gap:7px}
+.td{width:5px;height:5px;background:var(--blue);border-radius:50%}
+.td:nth-child(1){animation:bounce 1.2s ease-in-out infinite}
+.td:nth-child(2){animation:bounce 1.2s ease-in-out .2s infinite}
+.td:nth-child(3){animation:bounce 1.2s ease-in-out .4s infinite}
+.ttxt{font-family:"Orbitron",sans-serif;font-size:8px;letter-spacing:2px;color:var(--blue);animation:pulse 1.5s ease-in-out infinite}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center}
+.wr{width:60px;height:60px;position:relative;display:flex;align-items:center;justify-content:center}
+.wr .r1{width:60px;height:60px}.wr .r2{width:44px;height:44px}.wr .r3{width:28px;height:28px}
+.wcore{width:10px;height:10px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;box-shadow:0 0 10px var(--green)}
+.wtitle{font-family:"Orbitron",sans-serif;font-weight:900;font-size:22px;letter-spacing:6px}
+.wsub{font-size:10px;color:var(--dim);letter-spacing:1px;max-width:300px;line-height:1.9}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:400px}
+.chip{background:transparent;border:1px solid;padding:6px 11px;font-size:9px;font-family:"Share Tech Mono",monospace;cursor:pointer;border-radius:2px;transition:all .2s}
+.chip:hover{background:rgba(255,255,255,.04);filter:brightness(1.5)}
+.chip:nth-child(1){border-color:rgba(255,58,92,.25);color:rgba(255,58,92,.65)}
+.chip:nth-child(2){border-color:rgba(58,143,255,.25);color:rgba(58,143,255,.65)}
+.chip:nth-child(3){border-color:rgba(155,92,255,.25);color:rgba(155,92,255,.65)}
+.chip:nth-child(4){border-color:rgba(58,255,138,.25);color:rgba(58,255,138,.65)}
+.chip:nth-child(5){border-color:rgba(255,58,92,.25);color:rgba(255,58,92,.65)}
+.chip:nth-child(6){border-color:rgba(58,143,255,.25);color:rgba(58,143,255,.65)}
+.iarea{padding:9px 13px;border-top:1px solid rgba(58,255,138,.16);background:rgba(58,255,138,.025);display:flex;gap:6px;align-items:flex-end}
+.inp{flex:1;background:rgba(0,8,18,.88);border:1px solid rgba(58,255,138,.16);color:var(--bright);padding:9px 12px;font-family:"Share Tech Mono",monospace;font-size:13px;outline:none;resize:none;min-height:42px;max-height:95px;border-radius:2px;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:rgba(58,255,138,.48);box-shadow:0 0 9px rgba(58,255,138,.05)}
+.inp::placeholder{color:var(--dim)}
+.inp:disabled{opacity:.4}
+.abtn{width:42px;height:42px;border-radius:2px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s}
+.sbtn{background:rgba(58,255,138,.08);border:1px solid rgba(58,255,138,.36);color:var(--green)}
+.sbtn:hover:not(:disabled){background:rgba(58,255,138,.14)}
+.sbtn:disabled{opacity:.25;cursor:not-allowed}
+.mbtn{background:transparent;border:1px solid var(--border);color:var(--dim)}
+.mbtn:hover{border-color:var(--green);color:var(--green)}
+.mbtn.active{border-color:rgba(255,58,92,.6);color:var(--red);background:rgba(255,58,92,.07);animation:pulse 1s ease-in-out infinite}
+strong{color:var(--bright);font-weight:600}
+em{font-style:italic}
+code{background:rgba(58,143,255,.12);padding:1px 4px;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const RED="#ff3a5c",BLUE="#3a8fff",PURPLE="#9b5cff",GREEN="#3aff8a";
+const NC=[RED,BLUE,PURPLE,GREEN];
+
+function NeuronCanvas(){
+  const cv=useRef(null),S=useRef({n:[],p:[],raf:null,lf:0});
+  useEffect(()=>{
+    const c=cv.current;if(!c)return;
+    const ctx=c.getContext("2d"),st=S.current;
+    function resize(){c.width=c.offsetWidth;c.height=c.offsetHeight;build();}
+    function build(){
+      const W=c.width,H=c.height,cnt=Math.min(Math.floor(W*H/13000),70);
+      st.n=Array.from({length:cnt},()=>({x:Math.random()*W,y:Math.random()*H,r:1.5+Math.random()*1.5,col:NC[Math.floor(Math.random()*4)],g:0,cn:[]}));
+      const D=Math.min(W,H)*.22;
+      st.n.forEach(n=>{n.cn=st.n.filter(m=>m!==n).map(m=>({m,d:Math.hypot(m.x-n.x,m.y-n.y)})).filter(({d})=>d<D).sort((a,b)=>a.d-b.d).slice(0,4).map(({m})=>m);});
+      st.p=[];
+    }
+    function fire(n,depth=0){
+      if(n.g>0||depth>2)return;n.g=28;
+      if(st.p.length<40)n.cn.forEach(t=>st.p.push({fx:n.x,fy:n.y,tx:t.x,ty:t.y,tgt:t,col:n.col,p:0,sp:.009+Math.random()*.013,d:depth}));
+    }
+    function draw(now){
+      const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+      st.n.forEach(n=>n.cn.forEach(m=>{ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.strokeStyle=n.col+"13";ctx.lineWidth=.6;ctx.stroke();}));
+      st.p=st.p.filter(p=>{
+        p.p+=p.sp;if(p.p>=1){fire(p.tgt,p.d+1);return false;}
+        const x=p.fx+(p.tx-p.fx)*p.p,y=p.fy+(p.ty-p.fy)*p.p,p2=Math.max(0,p.p-.15);
+        ctx.beginPath();ctx.moveTo(p.fx+(p.tx-p.fx)*p2,p.fy+(p.ty-p.fy)*p2);ctx.lineTo(x,y);ctx.strokeStyle=p.col+"80";ctx.lineWidth=1.2;ctx.stroke();
+        ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fillStyle=p.col;ctx.fill();
+        return true;
+      });
+      st.n.forEach(n=>{
+        if(n.g>0){ctx.beginPath();ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2);ctx.fillStyle=n.col+Math.round((n.g/28)*66).toString(16).padStart(2,"0");ctx.fill();n.g--;}
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.g>0?n.col:n.col+"4a";ctx.fill();
+      });
+      if(now-st.lf>450){st.lf=now;const n=st.n[Math.floor(Math.random()*st.n.length)];if(n)fire(n);}
+      st.raf=requestAnimationFrame(draw);
+    }
+    resize();window.addEventListener("resize",resize);st.raf=requestAnimationFrame(draw);
+    return()=>{cancelAnimationFrame(st.raf);window.removeEventListener("resize",resize);}
+  },[]);
+  return React.createElement("canvas",{ref:cv,style:{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}});
+}
+
+const SYS=`You are Zero — a highly capable personal AI assistant. Precise, sharp, quietly confident. Speak with clarity: never verbose, never vague. Lead with the answer. Use the user's name once known. Always honest.
+
+CAPABILITIES: Writing, research, planning, decisions, emails, brainstorming, technical help, strategy, creative work.
+
+KNOWN FACTS ABOUT USER:
+{FACTS}
+
+MEMORY: If user reveals personal info (name, job, city, goals, projects, preferences), append at very end:
+<mem>{"key":"value"}</mem>
+Only new facts. Omit if nothing new. Never mention this.`;
+
+const SUGGESTED=["What can you help me with?","Help me write a professional email","Plan a project for me","Research something for me","Help me think through a decision","Write a summary or report"];
+
+function fmt(t){
+  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>")
+    .replace(/`([^`]+)`/g,"<code>$1</code>").replace(/
+/g,"<br>");
+}
+const tf=ts=>new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+function lg(k,d){try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;}}
+function ls(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+function Setup({onDone}){
+  const [key,setKey]=useState(""),step=useState(0);
+  const [pg,setPg]=step;
+  const nc=React.createElement;
+  if(pg===0)return nc("div",{className:"app",style:{position:"relative"}},
+    nc(NeuronCanvas),
+    nc("div",{className:"setup",style:{position:"relative",zIndex:5}},
+      nc("div",{className:"s-reactor"},nc("div",{className:"ring r1"}),nc("div",{className:"ring r2"}),nc("div",{className:"ring r3"}),nc("div",{className:"core"})),
+      nc("div",{className:"s-title"},"ZERO"),
+      nc("div",{className:"s-sub"},"Your personal AI needs one thing to activate — a free API key from Anthropic (the company that makes the AI brain inside)."),
+      nc("div",{className:"s-steps"},
+        nc("div",{className:"srow"},nc("div",{className:"snum r"},"1"),nc("div",{className:"stxt"},nc("span",null,"Go to "),nc("a",{href:"https://console.anthropic.com",target:"_blank"},"console.anthropic.com"),nc("span",null," and sign up for a free account"))),
+        nc("div",{className:"srow"},nc("div",{className:"snum b"},"2"),nc("div",{className:"stxt"},nc("span",null,'Once logged in, click '),nc("strong",null,'"API Keys"'),nc("span",null,' in the left menu → '),nc("strong",null,'"Create Key"'),nc("span",null," → give it any name"))),
+        nc("div",{className:"srow"},nc("div",{className:"snum p"},"3"),nc("div",{className:"stxt"},nc("span",null,"Copy the key — it starts with "),nc("code",null,"sk-ant-"),nc("span",null," — copy it now as you only see it once")))
+      ),
+      nc("button",{className:"s-go",onClick:()=>setPg(1)},"I HAVE MY KEY →")
+    )
+  );
+  return nc("div",{className:"app",style:{position:"relative"}},
+    nc(NeuronCanvas),
+    nc("div",{className:"setup",style:{position:"relative",zIndex:5}},
+      nc("div",{className:"s-reactor"},nc("div",{className:"ring r1"}),nc("div",{className:"ring r2"}),nc("div",{className:"ring r3"}),nc("div",{className:"core"})),
+      nc("div",{className:"s-title"},"ZERO"),
+      nc("div",{className:"s-card"},
+        nc("label",{className:"s-lbl"},"PASTE YOUR ANTHROPIC API KEY"),
+        nc("input",{className:"s-inp",type:"password",placeholder:"sk-ant-api03-...",value:key,onChange:e=>setKey(e.target.value),onKeyDown:e=>{if(e.key==="Enter"&&key.trim())onDone(key.trim());}}),
+        nc("button",{className:"s-go",onClick:()=>{if(key.trim())onDone(key.trim());},disabled:!key.trim()},"ACTIVATE ZERO"),
+        nc("div",{className:"s-note"},"Your key is stored only on this device — it never leaves your browser except to call Anthropic's servers directly. Add billing credits at console.anthropic.com if needed (a few dollars lasts months for personal use).")
+      )
+    )
+  );
+}
+
+function detectSpeech(){try{if(!window.speechSynthesis)return false;const u=new SpeechSynthesisUtterance(" ");u.volume=0;window.speechSynthesis.speak(u);window.speechSynthesis.cancel();return true;}catch{return false;}}
+
+function App(){
+  const nc=React.createElement;
+  const [akey,setAkey]=useState(()=>localStorage.getItem("z-akey")||"");
+  const [msgs,setMsgs]=useState(()=>lg("z-msgs",[]));
+  const [inp,setInp]=useState("");
+  const [think,setThink]=useState(false);
+  const [listen,setListen]=useState(false);
+  const [status,setStatus]=useState("READY");
+  const [facts,setFacts]=useState(()=>lg("z-facts",{}));
+  const [showMem,setShowMem]=useState(false);
+  const [vOn,setVOn]=useState(true);
+  const [native,setNative]=useState(true);
+  const [elKey,setElKey]=useState(()=>localStorage.getItem("z-elkey")||"");
+  const [elInp,setElInp]=useState(()=>localStorage.getItem("z-elkey")||"");
+  const [showEl,setShowEl]=useState(false);
+  const [elOk,setElOk]=useState(()=>!!localStorage.getItem("z-elkey"));
+  const [spk,setSpk]=useState(false);
+  const endRef=useRef(null),recRef=useRef(null),taRef=useRef(null),audRef=useRef(null);
+
+  useEffect(()=>{setNative(detectSpeech());},[]);
+  useEffect(()=>{endRef.current&&endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,think]);
+  useEffect(()=>{if(taRef.current){taRef.current.style.height="auto";taRef.current.style.height=Math.min(taRef.current.scrollHeight,95)+"px";}},[inp]);
+
+  function persist(m,f){ls("z-msgs",m.slice(-40));ls("z-facts",f);}
+  function stopSpk(){if(audRef.current){audRef.current.pause();audRef.current=null;}window.speechSynthesis&&window.speechSynthesis.cancel();setSpk(false);setStatus("READY");}
+
+  async function speakEL(txt){
+    const t=txt.replace(/<[^>]+>/g,"").replace(/[*_`#]/g,"").replace(/
++/g," ").slice(0,700);
+    try{
+      setStatus("SPEAKING");setSpk(true);
+      const r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB/stream",{method:"POST",headers:{"Content-Type":"application/json","xi-api-key":elKey},body:JSON.stringify({text:t,model_id:"eleven_turbo_v2_5",voice_settings:{stability:.5,similarity_boost:.75}})});
+      if(!r.ok){setSpk(false);setStatus("READY");return;}
+      const blob=await r.blob(),url=URL.createObjectURL(blob),audio=new Audio(url);
+      audRef.current=audio;
+      audio.onended=()=>{setSpk(false);setStatus("READY");URL.revokeObjectURL(url);};
+      audio.onerror=()=>{setSpk(false);setStatus("READY");};
+      await audio.play();
+    }catch{setSpk(false);setStatus("READY");}
+  }
+
+  function speakNative(txt){
+    const t=txt.replace(/<[^>]+>/g,"").replace(/[*_`#]/g,"").replace(/
++/g," ").slice(0,600);
+    const u=new SpeechSynthesisUtterance(t);u.rate=.88;u.pitch=.84;u.volume=1;
+    const av=()=>{const vs=window.speechSynthesis.getVoices();const p=vs.find(v=>v.name==="Daniel"||v.name.includes("Arthur")||(v.lang==="en-GB"&&!v.name.toLowerCase().includes("female")))||vs.find(v=>v.lang.startsWith("en"))||vs[0];if(p)u.voice=p;};
+    if(window.speechSynthesis.getVoices().length)av();else window.speechSynthesis.onvoiceschanged=av;
+    u.onstart=()=>{setStatus("SPEAKING");setSpk(true);};u.onend=u.onerror=()=>{setStatus("READY");setSpk(false);};
+    window.speechSynthesis.speak(u);
+  }
+
+  function speak(txt){if(!vOn)return;if(elKey){speakEL(txt);return;}if(native)speakNative(txt);}
+
+  function saveEl(){const k=elInp.trim();if(!k)return;localStorage.setItem("z-elkey",k);setElKey(k);setElOk(true);setVOn(true);setShowEl(false);}
+  function rmEl(){localStorage.removeItem("z-elkey");setElKey("");setElInp("");setElOk(false);}
+  function onDone(k){localStorage.setItem("z-akey",k);setAkey(k);}
+
+  async function send(text){
+    if(!text||!text.trim()||think)return;
+    stopSpk();
+    const um={role:"user",content:text.trim(),ts:Date.now()};
+    const thread=[...msgs,um];
+    setMsgs(thread);setInp("");setThink(true);setStatus("PROCESSING");
+    const fs=Object.keys(facts).length?Object.entries(facts).map(([k,v])=>`  - ${k}: ${v}`).join("
+"):"  None yet.";
+    const sys=SYS.replace("{FACTS}",fs);
+    const am=thread.slice(-20).map(m=>({role:m.role,content:m.content}));
+    try{
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":akey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys,messages:am})});
+      if(!r.ok)throw new Error(r.status);
+      const data=await r.json();
+      const raw=data.content&&data.content[0]?data.content[0].text:"I lost my connection. Please try again.";
+      const mm=raw.match(/<mem>([\s\S]*?)<\/mem>/);
+      const clean=raw.replace(/<mem>[\s\S]*?<\/mem>/g,"").trim();
+      let nf=facts;
+      if(mm){try{const ex=JSON.parse(mm[1]);nf={...facts,...ex};setFacts(nf);}catch{}}
+      const am2={role:"assistant",content:clean,ts:Date.now()};
+      const fin=[...thread,am2];setMsgs(fin);persist(fin,nf);
+      if(vOn)speak(clean);
+    }catch{setMsgs(m=>[...m,{role:"assistant",content:"Connection issue. Please check your API key and internet connection.",ts:Date.now()}]);}
+    setThink(false);if(!vOn||(!elKey&&!native))setStatus("READY");
+  }
+
+  function toggleListen(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert("Voice input requires Chrome or Edge.");return;}
+    if(listen){recRef.current&&recRef.current.stop();return;}
+    stopSpk();
+    const rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang="en-US";
+    rec.onstart=()=>{setListen(true);setStatus("LISTENING");};
+    rec.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join("");setInp(t);if(e.results[e.results.length-1].isFinal){setListen(false);send(t);}};
+    rec.onend=()=>{setListen(false);setStatus(s=>s==="LISTENING"?"READY":s);};
+    rec.onerror=()=>{setListen(false);setStatus("READY");};
+    recRef.current=rec;rec.start();
+  }
+
+  function clearAll(){if(!confirm("Clear all conversation history and memory?"))return;["z-msgs","z-facts"].forEach(k=>localStorage.removeItem(k));setMsgs([]);setFacts({});}
+
+  if(!akey)return nc(Setup,{onDone});
+
+  const canSpk=native||!!elKey;
+  const Nc=(tag,props,...ch)=>nc(tag,props,...ch);
+
+  return nc("div",{className:"app"},
+    nc(NeuronCanvas),
+    nc("div",{className:"scanline"}),
+
+    nc("div",{className:"hdr",style:{position:"relative",zIndex:10}},
+      nc("div",{className:"logo-wrap"},
+        nc("div",{className:"reactor"},nc("div",{className:"ring r1"}),nc("div",{className:"ring r2"}),nc("div",{className:"ring r3"}),nc("div",{className:"core"})),
+        nc("div",null,nc("div",{className:"logo-text"},"ZERO"),nc("div",{className:"logo-sub"},"PERSONAL AI OPERATING SYSTEM"))
+      ),
+      nc("div",{className:"sbadge s"+status},
+        nc("div",{className:"sdot"}),
+        status==="SPEAKING"&&nc("div",{className:"bars"},nc("div",{className:"bar"}),nc("div",{className:"bar"}),nc("div",{className:"bar"}),nc("div",{className:"bar"}),nc("div",{className:"bar"})),
+        status
+      ),
+      nc("div",{className:"ctrls"},
+        spk?nc("button",{className:"btn stop",onClick:stopSpk},"⏹"):nc("button",{className:"btn"+(vOn&&canSpk?" on":""),onClick:()=>{if(canSpk){setVOn(v=>!v);stopSpk();}else setShowEl(s=>!s);}},!canSpk?"⚠ VOICE":vOn?(elKey?"🔊 11LABS":"🔊 VOICE"):"🔇 MUTED"),
+        nc("button",{className:"btn"+(showEl?" elon":""),onClick:()=>setShowEl(s=>!s)},"🎙 "+(elOk?"11LABS ✓":"ADD VOICE")),
+        nc("button",{className:"btn"+(showMem?" on":""),onClick:()=>setShowMem(s=>!s)},"🧠"+(Object.keys(facts).length>0?" ("+Object.keys(facts).length+")":"")),
+        nc("button",{className:"btn",onClick:clearAll},"⊗")
+      )
+    ),
+
+    !native&&!elKey&&nc("div",{className:"vbanner"},nc("span",null,"🔇"),nc("span",null,"Add ",nc("button",{className:"vlink",onClick:()=>setShowEl(true)},"ElevenLabs key")," for voice, or open in Chrome/Edge.")),
+
+    showEl&&nc("div",{className:"elpanel"},
+      nc("div",{className:"elrow"},
+        nc("span",{className:"ellbl"},"ELEVENLABS KEY"),
+        nc("input",{className:"elinp",type:"password",placeholder:"Paste ElevenLabs API key…",value:elInp,onChange:e=>setElInp(e.target.value),onKeyDown:e=>{if(e.key==="Enter")saveEl();}}),
+        nc("button",{className:"elsave",onClick:saveEl},"ACTIVATE"),
+        elKey&&nc("button",{className:"btn stop",onClick:rmEl},"REMOVE")
+      ),
+      elOk&&nc("div",{className:"elok"},"✓ ElevenLabs active — Zero speaks with a real AI voice"),
+      nc("div",{className:"elnote"},"Free key at ",nc("a",{href:"https://elevenlabs.io",target:"_blank"},"elevenlabs.io")," — stored on your device only.")
+    ),
+
+    nc("div",{className:"layout"},
+      showMem&&nc("div",{className:"mem"},
+        nc("div",{className:"phdr"},nc("span",null,"MEMORY"),nc("span",{style:{color:"rgba(155,92,255,.4)",fontSize:"7px"}},Object.keys(facts).length+" FACTS")),
+        nc("div",{className:"pbody"},
+          Object.keys(facts).length===0?nc("div",{className:"nomem"},"No data yet. Zero learns things about you as you talk."):
+          Object.entries(facts).map(([k,v])=>nc("div",{className:"fact",key:k},nc("div",{className:"fk"},k.replace(/_/g," ")),nc("div",{className:"fv"},String(v)))),
+          msgs.length>0&&nc("div",{className:"mfoot"},nc("div",{className:"fk"},"CONVERSATION"),nc("div",{className:"fv"},msgs.length+" messages"))
+        )
+      ),
+
+      nc("div",{className:"chat"},
+        nc("div",{className:"msgs"},
+          msgs.length===0&&nc("div",{className:"welcome"},
+            nc("div",{className:"wr"},nc("div",{className:"ring r1"}),nc("div",{className:"ring r2"}),nc("div",{className:"ring r3"}),nc("div",{className:"wcore"})),
+            nc("div",{className:"wtitle"},nc("span",{style:{color:RED}},"Z"),nc("span",{style:{color:BLUE}}," · E"),nc("span",{style:{color:PURPLE}}," · R"),nc("span",{style:{color:GREEN}}," · O")),
+            nc("div",{className:"wsub"},"Online and at your service.",nc("br"),"What can I do for you today?"),
+            nc("div",{className:"chips"},SUGGESTED.map(p=>nc("button",{key:p,className:"chip",onClick:()=>send(p)},p)))
+          ),
+          msgs.map((m,i)=>nc("div",{key:i,className:"msg msg-"+(m.role==="user"?"u":"j")},
+            nc("div",{className:"av av-"+(m.role==="user"?"u":"j")},m.role==="user"?"YOU":"ZRO"),
+            nc("div",null,nc("div",{className:"bub bub-"+(m.role==="user"?"u":"j"),dangerouslySetInnerHTML:{__html:fmt(m.content)}}),nc("div",{className:"mt"},tf(m.ts)))
+          )),
+          think&&nc("div",{className:"msg msg-j",style:{animation:"fadeup .2s ease"}},
+            nc("div",{className:"av av-j"},"ZRO"),
+            nc("div",null,nc("div",{className:"bub bub-j"},nc("div",{className:"thinking"},nc("div",{className:"td"}),nc("div",{className:"td"}),nc("div",{className:"td"}),nc("span",{className:"ttxt"},"PROCESSING"))))
+          ),
+          nc("div",{ref:endRef})
+        ),
+
+        nc("div",{className:"iarea"},
+          nc("button",{className:"abtn mbtn"+(listen?" active":""),onClick:toggleListen,title:"Voice input"},listen?"●":"🎤"),
+          nc("textarea",{ref:taRef,className:"inp",value:inp,onChange:e=>setInp(e.target.value),onKeyDown:e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send(inp);}},placeholder:listen?"Listening…":"Message Zero… (Enter to send)",disabled:think||listen,rows:1}),
+          nc("button",{className:"abtn sbtn",onClick:()=>send(inp),disabled:!inp.trim()||think},"➤")
+        )
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
